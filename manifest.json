@@ -1,0 +1,12 @@
+{
+  "domain": "linky",
+  "name": "Linky",
+  "documentation": "",
+  "requirements": [
+    "requests==2.24.0"
+  ],
+  "dependencies": [],
+  "codeowners": [
+    "cyprieng"
+  ]
+}
