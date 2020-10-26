@@ -91,8 +91,8 @@ class LinkyAccount:
             }, json={
                 'type': 'consumption_load_curve',
                 'usage_point_id': self._point_id,
-                'start': datetime.now().replace(day=1).strftime('%d/%m/%Y'),
-                'end': datetime.now().replace(day=31).strftime('%d/%m/%Y')
+                'start': datetime.now().replace(day=1).strftime('%Y-%m-%d'),
+                'end': datetime.now().replace(day=31).strftime('%Y-%m-%d')
             }).json()
             _LOGGER.debug('data={0}'.format(json.dumps(data, indent=2)))
 
@@ -106,7 +106,7 @@ class LinkyAccount:
 
             last_kwh = int(data_grouped[max(data_grouped.keys())])
             month_kwh = sum([int(d) for _, d in data.items()])
-            timestamp = datetime.strptime(max(data_grouped.keys()), '%d/%m/%Y')
+            timestamp = datetime.strptime(max(data_grouped.keys()), '%Y-%m-%d')
 
             # Update sensors
             for sensor in self.sensors:
