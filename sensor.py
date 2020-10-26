@@ -92,7 +92,7 @@ class LinkyAccount:
                 'type': 'consumption_load_curve',
                 'usage_point_id': self._point_id,
                 'start': datetime.now().replace(day=1).strftime('%Y-%m-%d'),
-                'end': datetime.now().replace(day=31).strftime('%Y-%m-%d')
+                'end': datetime.now().strftime('%Y-%m-%d')
             }).json()
             _LOGGER.debug('data={0}'.format(json.dumps(data, indent=2)))
 
