@@ -18,8 +18,8 @@ _LOGGER = logging.getLogger(__name__)
 # CONST
 DEFAULT_SCAN_INTERVAL = timedelta(hours=4)
 CONF_COST = 'cost'
-CONF_API_KEY = 'api-key'
-CONF_POINT_ID = 'point-id'
+CONF_API_KEY = 'api_key'
+CONF_POINT_ID = 'point_id'
 
 HA_ATTRIBUTION = 'Data provided by Enedis'
 HA_TIME = 'time'
