@@ -89,24 +89,16 @@ class LinkyAccount:
             data = requests.post('https://enedisgateway.tech/api', headers={
                 'Authorization': self._api_key
             }, json={
-                'type': 'consumption_load_curve',
+                'type': 'daily_consumption',
                 'usage_point_id': self._point_id,
                 'start': datetime.now().replace(day=1).strftime('%Y-%m-%d'),
                 'end': datetime.now().strftime('%Y-%m-%d')
             }).json()
             _LOGGER.debug('data={0}'.format(json.dumps(data, indent=2)))
 
-            # Group by day
-            data_grouped = {}
-            for d in data['meter_reading']['interval_reading']:
-                date = d['date'][0:10]
-                if date not in data_grouped:
-                    data_grouped[date] = 0
-                data_grouped[date] += d['value']
-
-            last_kwh = int(data_grouped[max(data_grouped.keys())])
-            month_kwh = sum([int(d) for _, d in data.items()])
-            timestamp = datetime.strptime(max(data_grouped.keys()), '%Y-%m-%d')
+            last_kwh = float(data[-1]['value'] / 1000)
+            month_kwh = sum([float(d['value'] / 1000) for d in data])
+            timestamp = datetime.strptime(data[-1]['date'], '%Y-%m-%d')
 
             # Update sensors
             for sensor in self.sensors:
