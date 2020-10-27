@@ -98,8 +98,8 @@ class LinkyAccount:
 
             data = data['meter_reading']['interval_reading']
 
-            last_kwh = float(data[-1]['value'] / 1000)
-            month_kwh = sum([float(d['value'] / 1000) for d in data])
+            last_kwh = float(data[-1]['value']) / 1000
+            month_kwh = sum([float(d['value']) / 1000 for d in data])
             timestamp = datetime.strptime(data[-1]['date'], '%Y-%m-%d')
 
             # Update sensors
