@@ -26,7 +26,7 @@ HA_TIME = 'time'
 HA_TIMESTAMP = 'timestamp'
 HA_TYPE = 'type'
 
-ICON_ELECTRICITY = 'lightning-bolt'
+ICON_ELECTRICITY = 'mdi:lightning-bolt'
 ICON_PRICE = 'mdi:currency-eur'
 
 HA_LAST_ENERGY_KWH = 'Linky energy'
@@ -105,9 +105,9 @@ class LinkyAccount:
             # Update sensors
             for sensor in self.sensors:
                 if sensor.name == HA_LAST_ENERGY_KWH:
-                    sensor.set_data(timestamp, last_kwh)
+                    sensor.set_data(timestamp, round(last_kwh, 4))
                 if sensor.name == HA_MONTH_ENERGY_KWH:
-                    sensor.set_data(timestamp, month_kwh)
+                    sensor.set_data(timestamp, round(month_kwh, 4))
                 if sensor.name == HA_LAST_ENERGY_PRICE:
                     sensor.set_data(timestamp, round(last_kwh * self._cost, 4))
                 if sensor.name == HA_MONTH_ENERGY_PRICE:
