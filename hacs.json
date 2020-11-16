@@ -1,0 +1,6 @@
+{
+  "name": "Linky",
+  "country": "FR",
+  "render_readme": true,
+  "domains": ["sensor"]
+}
