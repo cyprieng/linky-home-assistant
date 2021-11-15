@@ -102,17 +102,18 @@ class LinkyAccount:
             last_kwh = float(data[-1]['value']) / 1000
             month_kwh = sum([float(d['value']) / 1000 for d in data])
             timestamp = datetime.strptime(data[-1]['date'], '%Y-%m-%d')
+            last_reset = datetime.strptime(data[0]['date'], '%Y-%m-%d')
 
             # Update sensors
             for sensor in self.sensors:
                 if sensor.name == HA_LAST_ENERGY_KWH:
-                    sensor.set_data(timestamp, round(last_kwh, 4))
+                    sensor.set_data(timestamp, round(last_kwh, 4), timestamp)
                 if sensor.name == HA_MONTH_ENERGY_KWH:
-                    sensor.set_data(timestamp, round(month_kwh, 4))
+                    sensor.set_data(timestamp, round(month_kwh, 4), last_reset)
                 if sensor.name == HA_LAST_ENERGY_PRICE:
-                    sensor.set_data(timestamp, round(last_kwh * self._cost, 4))
+                    sensor.set_data(timestamp, round(last_kwh * self._cost, 4), timestamp)
                 if sensor.name == HA_MONTH_ENERGY_PRICE:
-                    sensor.set_data(timestamp, round(month_kwh * self._cost, 4))
+                    sensor.set_data(timestamp, round(month_kwh * self._cost, 4), last_reset)
 
                 sensor.async_schedule_update_ha_state(True)
                 _LOGGER.debug('HA notified that new data is available')
@@ -129,6 +130,7 @@ class LinkySensor(Entity):
         self._unit = unit
         self._timestamp = None
         self._measure = None
+        self._last_reset = None
 
     @property
     def name(self):
@@ -174,7 +176,8 @@ class LinkySensor(Entity):
             HA_TIMESTAMP: self._timestamp,
         }
 
-    def set_data(self, timestamp, measure):
+    def set_data(self, timestamp, measure, last_reset):
         """Update sensor data"""
         self._measure = measure
         self._timestamp = timestamp
+        self._last_reset = last_reset
