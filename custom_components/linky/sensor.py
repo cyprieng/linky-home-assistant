@@ -6,9 +6,10 @@ import traceback
 import requests
 import voluptuous as vol
 
-from homeassistant.components.sensor import PLATFORM_SCHEMA
+from homeassistant.components.sensor import (
+        PLATFORM_SCHEMA, STATE_CLASS_TOTAL_INCREASING)
 from homeassistant.const import (
-    ATTR_ATTRIBUTION, ENERGY_KILO_WATT_HOUR, CURRENCY_EURO)
+    ATTR_ATTRIBUTION, ENERGY_KILO_WATT_HOUR, CURRENCY_EURO, DEVICE_CLASS_ENERGY, DEVICE_CLASS_MONETARY)
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.event import track_time_interval, call_later
@@ -151,6 +152,19 @@ class LinkySensor(Entity):
             return ICON_ELECTRICITY
         else:
             return ICON_PRICE
+
+    @property
+    def device_class(self):
+        """Return the type of the sensor."""
+        if self._name in [HA_MONTH_ENERGY_KWH, HA_LAST_ENERGY_KWH]:
+            return DEVICE_CLASS_ENERGY
+        else:
+            return DEVICE_CLASS_MONETARY
+
+    @property
+    def state_class(self):
+        """Return the type of class."""
+        return STATE_CLASS_TOTAL_INCREASING
 
     @property
     def device_state_attributes(self):
