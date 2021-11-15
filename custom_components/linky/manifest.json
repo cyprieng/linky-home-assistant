@@ -1,7 +1,7 @@
 {
   "domain": "linky",
   "name": "Linky",
-  "documentation": "",
+  "documentation": "https://github.com/cyprieng/linky-home-assistant/blob/main/README.md",
   "requirements": [
     "requests==2.24.0"
   ],
