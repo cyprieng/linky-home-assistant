@@ -7,11 +7,10 @@ import requests
 import voluptuous as vol
 
 from homeassistant.components.sensor import (
-        PLATFORM_SCHEMA, STATE_CLASS_TOTAL_INCREASING)
+        PLATFORM_SCHEMA, STATE_CLASS_TOTAL_INCREASING, SensorEntity)
 from homeassistant.const import (
     ATTR_ATTRIBUTION, ENERGY_KILO_WATT_HOUR, CURRENCY_EURO, DEVICE_CLASS_ENERGY, DEVICE_CLASS_MONETARY)
 import homeassistant.helpers.config_validation as cv
-from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.event import track_time_interval, call_later
 
 _LOGGER = logging.getLogger(__name__)
@@ -121,7 +120,7 @@ class LinkyAccount:
             _LOGGER.error('Failed to query Linky library with exception : {0}'.format(traceback.format_exc()))
 
 
-class LinkySensor(Entity):
+class LinkySensor(SensorEntity):
     """Representation of a sensor entity for Linky."""
 
     def __init__(self, name, unit):
