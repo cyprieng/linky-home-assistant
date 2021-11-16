@@ -6,11 +6,11 @@ import traceback
 import requests
 import voluptuous as vol
 
-from homeassistant.components.sensor import PLATFORM_SCHEMA
+from homeassistant.components.sensor import (
+        PLATFORM_SCHEMA, STATE_CLASS_TOTAL_INCREASING, SensorEntity)
 from homeassistant.const import (
-    ATTR_ATTRIBUTION, ENERGY_KILO_WATT_HOUR, CURRENCY_EURO)
+    ATTR_ATTRIBUTION, ENERGY_KILO_WATT_HOUR, CURRENCY_EURO, DEVICE_CLASS_ENERGY, DEVICE_CLASS_MONETARY)
 import homeassistant.helpers.config_validation as cv
-from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.event import track_time_interval, call_later
 
 _LOGGER = logging.getLogger(__name__)
@@ -101,17 +101,18 @@ class LinkyAccount:
             last_kwh = float(data[-1]['value']) / 1000
             month_kwh = sum([float(d['value']) / 1000 for d in data])
             timestamp = datetime.strptime(data[-1]['date'], '%Y-%m-%d')
+            last_reset = datetime.strptime(data[0]['date'], '%Y-%m-%d')
 
             # Update sensors
             for sensor in self.sensors:
                 if sensor.name == HA_LAST_ENERGY_KWH:
-                    sensor.set_data(timestamp, round(last_kwh, 4))
+                    sensor.set_data(timestamp, round(last_kwh, 4), timestamp)
                 if sensor.name == HA_MONTH_ENERGY_KWH:
-                    sensor.set_data(timestamp, round(month_kwh, 4))
+                    sensor.set_data(timestamp, round(month_kwh, 4), last_reset)
                 if sensor.name == HA_LAST_ENERGY_PRICE:
-                    sensor.set_data(timestamp, round(last_kwh * self._cost, 4))
+                    sensor.set_data(timestamp, round(last_kwh * self._cost, 4), timestamp)
                 if sensor.name == HA_MONTH_ENERGY_PRICE:
-                    sensor.set_data(timestamp, round(month_kwh * self._cost, 4))
+                    sensor.set_data(timestamp, round(month_kwh * self._cost, 4), last_reset)
 
                 sensor.async_schedule_update_ha_state(True)
                 _LOGGER.debug('HA notified that new data is available')
@@ -119,7 +120,7 @@ class LinkyAccount:
             _LOGGER.error('Failed to query Linky library with exception : {0}'.format(traceback.format_exc()))
 
 
-class LinkySensor(Entity):
+class LinkySensor(SensorEntity):
     """Representation of a sensor entity for Linky."""
 
     def __init__(self, name, unit):
@@ -128,6 +129,7 @@ class LinkySensor(Entity):
         self._unit = unit
         self._timestamp = None
         self._measure = None
+        self._last_reset = None
 
     @property
     def name(self):
@@ -153,6 +155,19 @@ class LinkySensor(Entity):
             return ICON_PRICE
 
     @property
+    def device_class(self):
+        """Return the type of the sensor."""
+        if self._name in [HA_MONTH_ENERGY_KWH, HA_LAST_ENERGY_KWH]:
+            return DEVICE_CLASS_ENERGY
+        else:
+            return DEVICE_CLASS_MONETARY
+
+    @property
+    def state_class(self):
+        """Return the type of class."""
+        return STATE_CLASS_TOTAL_INCREASING
+
+    @property
     def device_state_attributes(self):
         """Return the state attributes of the sensor."""
         return {
@@ -160,7 +175,8 @@ class LinkySensor(Entity):
             HA_TIMESTAMP: self._timestamp,
         }
 
-    def set_data(self, timestamp, measure):
+    def set_data(self, timestamp, measure, last_reset):
         """Update sensor data"""
         self._measure = measure
         self._timestamp = timestamp
+        self._last_reset = last_reset
